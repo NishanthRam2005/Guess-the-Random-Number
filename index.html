@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            margin: 0;
+            overflow: hidden;
+            animation: backgroundAnimation 5s infinite alternate;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 2s ease-out;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 8px;
+            border: none;
+            text-align: center;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        input[type="number"]:focus {
+            transform: scale(1.05);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            border-radius: 10px;
+            max-height: 250px;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        #reset {
+            margin-top: 20px;
+            padding: 8px 16px;
+            background-color: #ff4757;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: background-color 0.3s ease;
+        }
+
+        #reset:hover {
+            background-color: #e84118;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes backgroundAnimation {
+            0% {
+                background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            }
+            100% {
+                background: linear-gradient(135deg, #2a5298, #1e3c72);
+            }
+        }
+
+        @keyframes scaleUp {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Guess the Number!</h1>
+        <p>Guess a number between 1 and 100</p>
+        <input type="number" id="guess" min="1" max="100">
+        <button onclick="checkGuess()">Submit Guess</button>
+        <div class="message" id="message"></div>
+        <img id="image" src="lock1.png" alt="Stage 1 - Locked Chest" class="hidden">
+        <button id="reset" onclick="resetGame()">Reset Game</button>
+    </div>
+
+    <script>
+        const correctNumbers = [Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1];
+        let attempts = 0;
+        let currentLevel = 0; 
+        const maxAttempts = 5;
+        const images = [
+            "lock1.png", 
+            "lock2.png",
+            "lock3.png", 
+            "lock4.png", 
+            "unlock.png"
+        ];
+
+        function checkGuess() {
+            const userGuess = parseInt(document.getElementById('guess').value);
+            const message = document.getElementById('message');
+            const image = document.getElementById('image');
+
+            if (isNaN(userGuess) || userGuess < 1 || userGuess > 100) {
+                message.textContent = "Please enter a valid number between 1 and 100.";
+                message.style.color = "red";
+                return;
+            }
+
+            if (userGuess === correctNumbers[currentLevel]) {
+                message.textContent = `🎉 Congratulations! You guessed the number for level ${currentLevel + 1}.`;
+                message.style.color = 'green';
+                image.src = images[currentLevel]; 
+                image.classList.remove('hidden');
+                image.style.animation = "scaleUp 1s ease-in-out";
+                currentLevel++;
+
+                if (currentLevel === maxAttempts) {
+                    image.src = images[4]; 
+                    message.textContent = "🎉 You've unlocked all levels!";
+                    document.getElementById('reset').style.display = "inline-block"; 
+                }
+            } else {
+                if (userGuess < correctNumbers[currentLevel]) {
+                    message.textContent = `📉 Too low! Try again.`;
+                } else {
+                    message.textContent = `📈 Too high! Try again.`;
+                }
+                message.style.color = 'orange';
+            }
+        }
+
+        function resetGame() {
+            attempts = 0;
+            currentLevel = 0;
+            document.getElementById('guess').value = '';
+            document.getElementById('message').textContent = '';
+            document.getElementById('image').classList.add('hidden');
+            document.getElementById('reset').style.display = "none";
+      
+            for (let i = 0; i < maxAttempts; i++) {
+                correctNumbers[i] = Math.floor(Math.random() * 100) + 1;
+            }
+        }
+    </script>
+</body>
+</html>
